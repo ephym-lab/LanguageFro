@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Menu, LogOut, Settings, User } from 'lucide-react'
 import { useLogout } from '@/lib/queries/auth'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export default function DashboardLayout({
   children,
@@ -75,6 +76,7 @@ export default function DashboardLayout({
 
               {/* User Menu */}
               <div className="flex items-center gap-4">
+                <ModeToggle />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button

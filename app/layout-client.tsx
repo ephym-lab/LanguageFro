@@ -5,6 +5,8 @@ import { ReactNode, useMemo } from 'react'
 import { AuthProvider } from '@/lib/context/auth'
 import { Toaster } from '@/components/ui/sonner'
 
+import { ThemeProvider } from '@/components/theme-provider'
+
 export function RootLayoutClient({ children }: { children: ReactNode }) {
   const queryClient = useMemo(
     () =>
@@ -22,10 +24,17 @@ export function RootLayoutClient({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {children}
-        <Toaster duration={5000} richColors closeButton position="top-right" />
-      </AuthProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <AuthProvider>
+          {children}
+          <Toaster duration={5000} richColors closeButton position="top-right" />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }

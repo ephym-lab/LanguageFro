@@ -25,6 +25,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import { useLogout } from '@/lib/queries/auth'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export default function AdminLayout({
   children,
@@ -91,6 +92,7 @@ export default function AdminLayout({
 
               {/* User Menu */}
               <div className="flex items-center gap-4">
+                <ModeToggle />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button

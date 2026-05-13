@@ -199,14 +199,17 @@ export interface DatasetListResponse {
 // Response Types
 export interface ResponseObj {
   id: string
-  response_text: string
-  response_date: string
+  response_text?: string
+  content?: string
+  response_date?: string
   is_accepted: boolean
   user_id: string
   dataset_id: string
   language_id: string
-  category_id: string
+  category_id?: string
+  is_ai_generated?: boolean
   created_at: string
+  updated_at?: string
 }
 
 export interface CreateResponseRequest {

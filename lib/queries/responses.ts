@@ -147,3 +147,30 @@ export function useDatasetResponseCount(datasetId: string) {
     enabled: !!datasetId, // Only run if we have a datasetId
   })
 }
+
+// Get current user's responses
+export function useMyResponses(filters?: FilterParams, limit: number = 20) {
+  return useInfiniteQuery({
+    queryKey: [...responseKeys.lists(), 'me', { filters }] as const,
+    queryFn: async ({ pageParam = 0 }) => {
+      const params = new URLSearchParams({
+        offset: pageParam.toString(),
+        limit: limit.toString(),
+        ...(filters?.language_id && { language_id: filters.language_id }),
+        ...(filters?.is_ai_generated !== undefined && { is_ai_generated: filters.is_ai_generated.toString() }),
+        ...(filters?.vote_type && { vote_type: filters.vote_type }),
+      })
+
+      const response = await apiClient.get(`/responses/user/me?${params}`)
+      return getObjectFromResponse<ResponseListResponse>(response) as ResponseListResponse
+    },
+    getNextPageParam: (lastPage) => {
+      const nextOffset = lastPage.offset + lastPage.limit
+      if (nextOffset < lastPage.total) {
+        return nextOffset
+      }
+      return undefined
+    },
+    initialPageParam: 0,
+  })
+}
