@@ -38,6 +38,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { MoreHorizontal, Plus, Loader2, Trash2 } from 'lucide-react'
 import { useTribes } from '@/lib/queries/tribes'
+import { toast } from 'sonner'
 
 const languageSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -75,15 +76,19 @@ export default function AdminLanguagesPage() {
     try {
       if (editingId) {
         await updateMutation.mutateAsync(data)
+        toast.success("Language updated successfully")
       } else {
         await createMutation.mutateAsync(data)
+        toast.success("Language created successfully")
       }
       reset()
       setIsDialogOpen(false)
       setEditingId(null)
       languagesQuery.refetch()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save language:', error)
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to save language'
+      toast.error(`Error: ${errorMessage}`)
     }
   }
 
@@ -91,9 +96,12 @@ export default function AdminLanguagesPage() {
     if (window.confirm('Are you sure you want to delete this language?')) {
       try {
         await deleteMutation.mutateAsync(id)
+        toast.success("Language deleted successfully")
         languagesQuery.refetch()
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to delete language:', error)
+        const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to delete language'
+        toast.error(`Error: ${errorMessage}`)
       }
     }
   }

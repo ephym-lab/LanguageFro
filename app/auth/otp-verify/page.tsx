@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useVerifyOtp } from '@/lib/queries/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 
 export default function OtpVerifyPage() {
   const router = useRouter()
@@ -34,13 +35,17 @@ export default function OtpVerifyPage() {
 
     try {
       await verifyOtpMutation.mutateAsync({ email, code: otp })
+      toast.success("Email verified successfully! You can now log in.")
       // Clear session storage
       sessionStorage.removeItem('register_email')
       sessionStorage.removeItem('auth_token')
       // Redirect to login
       router.push('/auth/login')
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'OTP verification failed')
+      console.error('OTP verification error:', err)
+      const errorMessage = err.response?.data?.error?.message || err.response?.data?.message || err.message || 'OTP verification failed'
+      setError(errorMessage)
+      toast.error(`Verification failed: ${errorMessage}`)
     }
   }
 

@@ -26,6 +26,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useRegister } from '@/lib/queries/auth'
 import { useLanguages } from '@/lib/queries/languages'
 import { Spinner } from '@/components/ui/spinner'
+import { toast } from 'sonner'
 
 const step1Schema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters'),
@@ -132,16 +133,19 @@ export default function RegisterPage() {
         languages: formData.languages,
       })
 
+      toast.success("Account created! Please verify your email.")
       // Store email temporarily for OTP verification
       sessionStorage.setItem('register_email', formData.email)
       router.push('/auth/otp-verify')
     } catch (err: any) {
+      console.error('Registration error:', err)
       const errorMessage = 
         err.response?.data?.error ||
         err.response?.data?.message ||
         err.message ||
         'Registration failed. Please try again.'
       setError(errorMessage)
+      toast.error(`Registration failed: ${errorMessage}`)
     }
   }
 
@@ -308,7 +312,7 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90"
-                disabled={isSubmitting || (confirmPassword && passwordValue && confirmPassword !== passwordValue)}
+                disabled={isSubmitting || !!(confirmPassword && passwordValue && confirmPassword !== passwordValue)}
               >
                 {isSubmitting ? 'Processing...' : 'Next'}
               </Button>

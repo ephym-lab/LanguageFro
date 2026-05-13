@@ -62,17 +62,18 @@ export interface RefreshTokenResponse {
 export interface User {
   id: string
   username: string
-  name: string
+  name?: string
+  full_name?: string
   email: string
-  gender: string
+  gender?: string
   role: string
-  phone: string
-  avatar: string
-  is_verified: boolean
-  is_active: boolean
-  languages: Language[]
-  created_at: string
-  updated_at: string
+  phone?: string
+  avatar?: string
+  is_verified?: boolean
+  is_active?: boolean
+  languages?: Language[]
+  created_at?: string
+  updated_at?: string
 }
 
 export interface UpdateUserRequest {
@@ -210,12 +211,9 @@ export interface ResponseObj {
 
 export interface CreateResponseRequest {
   dataset_id: string
-  response_type?: 'text' | 'voice'
-  content?: string
   response_text?: string
   language_id?: string
   category_id?: string
-  language_variant_id?: string
 }
 
 export interface UpdateResponseRequest {

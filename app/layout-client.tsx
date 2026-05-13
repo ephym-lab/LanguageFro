@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode, useMemo } from 'react'
 import { AuthProvider } from '@/lib/context/auth'
+import { Toaster } from '@/components/ui/sonner'
 
 export function RootLayoutClient({ children }: { children: ReactNode }) {
   const queryClient = useMemo(
@@ -21,7 +22,10 @@ export function RootLayoutClient({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        {children}
+        <Toaster duration={5000} richColors closeButton position="top-right" />
+      </AuthProvider>
     </QueryClientProvider>
   )
 }

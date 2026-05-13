@@ -21,14 +21,20 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
   const logoutMutation = useLogout()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = async () => {
-    await logoutMutation.mutateAsync()
-    router.push('/')
+    try {
+      await logoutMutation.mutateAsync()
+    } catch (error) {
+      console.warn('Backend logout failed, proceeding with local logout', error)
+    } finally {
+      logout()
+      router.push('/')
+    }
   }
 
   const navItems = [

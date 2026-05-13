@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useLogin } from '@/lib/queries/auth'
 import { useAuth } from '@/lib/context/auth'
+import { toast } from 'sonner'
+import { User } from '@/lib/types'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -36,27 +38,27 @@ export default function LoginPage() {
     setError(null)
     try {
       const result = await loginMutation.mutateAsync(data)
-      const userData = {
-        user_id: result.user.user_id,
+      const userData: User = {
+        id: result.user.user_id,
         email: result.user.email,
-        full_name: result.user.username,
+        username: result.user.username,
+        full_name: result.user.username, // Using username as fallback for full_name
         role: result.user.role,
-        created_at: new Date().toISOString(),
-        is_active: true,
       }
       
-      console.log('Login successful, user role:', result.user.role)
+      toast.success("Logged in successfully!")
       login(userData, result.tokens.access_token, result.tokens.refresh_token)
       
       // Wait a tick to ensure state updates
       setTimeout(() => {
         const redirectTo = result.user.role === 'admin' ? '/admin' : '/dashboard'
-        console.log('Redirecting to:', redirectTo)
         router.push(redirectTo)
       }, 100)
     } catch (err: any) {
       console.error('Login error:', err)
-      setError(err.response?.data?.error?.message || 'Login failed')
+      const errorMessage = err.response?.data?.error?.message || err.response?.data?.message || err.message || 'Login failed'
+      setError(errorMessage)
+      toast.error(`Login failed: ${errorMessage}`)
     }
   }
 

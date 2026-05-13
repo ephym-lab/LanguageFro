@@ -45,7 +45,8 @@ export function useDatasets(
         }),
       })
 
-      const response = await apiClient.get(`/datasets/?${params}`)
+      const endpoint = filters?.search ? '/datasets/search' : '/datasets/'
+      const response = await apiClient.get(`${endpoint}?${params}`)
       return getObjectFromResponse<DatasetListResponse>(response) as DatasetListResponse
     },
     getNextPageParam: (lastPage) => {

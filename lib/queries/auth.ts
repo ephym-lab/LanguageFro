@@ -64,7 +64,10 @@ export function useLogout() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (): Promise<void> => {
-      await apiClient.post('/users/logout')
+      // The backend does not currently have a logout endpoint.
+      // We perform a client-side logout instead.
+      // await apiClient.post('/users/logout')
+      return Promise.resolve()
     },
     onSuccess: () => {
       // Clear all queries

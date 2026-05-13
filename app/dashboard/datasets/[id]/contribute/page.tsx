@@ -12,6 +12,7 @@ import { useCreateResponse, useUploadVoiceRecording } from '@/lib/queries/respon
 import { useUserLanguages } from '@/lib/queries/auth'
 import { useCategories } from '@/lib/queries/categories'
 import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function ContributePage() {
   const params = useParams()
@@ -47,20 +48,23 @@ export default function ContributePage() {
         language_id: selectedLanguageId,
         category_id: selectedCategoryId,
       })
+      toast.success("Response submitted successfully")
       setTextInput('')
       router.push(`/dashboard/datasets/${datasetId}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting response:', error)
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to submit response'
+      toast.error(`Error: ${errorMessage}`)
     }
   }
 
   const handleVoiceSubmit = async (audioBlob: Blob) => {
     if (!selectedLanguageId) {
-      alert('Please select a language')
+      toast.error('Please select a language')
       return
     }
     if (!selectedCategoryId) {
-      alert('Please select a category')
+      toast.error('Please select a category')
       return
     }
 
@@ -70,9 +74,12 @@ export default function ContributePage() {
         audio_blob: audioBlob,
         language_variant_id: selectedLanguageId,
       })
+      toast.success("Voice recording uploaded successfully")
       router.push(`/dashboard/datasets/${datasetId}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading voice:', error)
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to upload voice'
+      toast.error(`Error: ${errorMessage}`)
     }
   }
 

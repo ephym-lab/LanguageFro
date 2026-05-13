@@ -5,17 +5,23 @@ import { useLanguage } from '@/lib/queries/languages'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Loader2, ArrowLeft, Mic, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { useCreateVote } from '@/lib/queries/votes'
+import { toast } from 'sonner'
 
 export default function DatasetDetailPage() {
   const params = useParams()
   const router = useRouter()
   const datasetId = params.id as string
 
+  const [votedResponseIds, setVotedResponseIds] = useState<string[]>([])
+
   const datasetQuery = useDataset(datasetId)
   const dataset = datasetQuery.data
+  const createVote = useCreateVote(datasetId)
 
   // Get language info if language_id exists
   const languageQuery = useLanguage(dataset?.language_id || '')
@@ -40,6 +46,22 @@ export default function DatasetDetailPage() {
   // Calculate total acceptances and rejections for AI responses
   const totalAcceptances = dataset.ai_responses?.reduce((sum, r) => sum + (r.acceptance_count || 0), 0) || 0
   const totalRejections = dataset.ai_responses?.reduce((sum, r) => sum + (r.rejection_count || 0), 0) || 0
+
+
+  const handleVote = async (responseId: string, voteType: 'accept' | 'reject') => {
+    try {
+      await createVote.mutateAsync({
+        response_id: responseId,
+        vote: voteType,
+      })
+      toast.success(`Successfully ${voteType === 'accept' ? 'accepted' : 'rejected'} response`)
+      setVotedResponseIds(prev => [...prev, responseId])
+    } catch (error: any) {
+      console.error('Voting error:', error)
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to submit vote'
+      toast.error(`Error: ${errorMessage}`)
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -186,19 +208,33 @@ export default function DatasetDetailPage() {
                     </div>
 
                     {/* Voting buttons would go here */}
-                    <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-sm text-muted-foreground mb-2">Vote on this response:</p>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="gap-2">
-                          <ThumbsUp className="w-4 h-4" />
-                          Accept
-                        </Button>
-                        <Button size="sm" variant="outline" className="gap-2">
-                          <ThumbsDown className="w-4 h-4" />
-                          Reject
-                        </Button>
+                    {!votedResponseIds.includes(response.id) && (
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <p className="text-sm text-muted-foreground mb-2">Vote on this response:</p>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="gap-2 hover:bg-green-50 hover:text-green-600 hover:border-green-200"
+                            onClick={() => handleVote(response.id, 'accept')}
+                            disabled={createVote.isPending}
+                          >
+                            <ThumbsUp className="w-4 h-4" />
+                            Accept
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                            onClick={() => handleVote(response.id, 'reject')}
+                            disabled={createVote.isPending}
+                          >
+                            <ThumbsDown className="w-4 h-4" />
+                            Reject
+                          </Button>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </Card>
                 ))}
               </div>
